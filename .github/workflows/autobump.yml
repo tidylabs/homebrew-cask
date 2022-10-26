@@ -1,0 +1,49 @@
+name: Bump formulae on schedule or request
+
+on:
+  workflow_dispatch:
+    inputs:
+      formulae:
+        description: Custom list of formulae to livecheck and bump if outdated
+        required: false
+  schedule:
+    # Every day at 3am
+    - cron: "0 3 * * *"
+
+env:
+  HOMEBREW_FORCE_HOMEBREW_ON_LINUX: 1
+  FORMULAE: >
+    jck112/cask/ffmpeg
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autobump:
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/homebrew/ubuntu22.04:master
+    steps:
+      - name: Fix permissions
+        run: sudo chown -R "$(whoami)" "$HOME" "$PWD/.."
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+        with:
+          test-bot: false
+          token: ${{ github.token }}
+
+      - name: Configure Git user
+        uses: Homebrew/actions/git-user-config@master
+
+      - name: Patch 'brew bump' for --no-fork
+        run: |
+          git -C "$(brew --repo)" apply \
+          "$(brew --repo jck112/cask)/.github/workflows/bump-no-fork.patch"
+
+      - name: Bump formulae
+        uses: Homebrew/actions/bump-formulae@master
+        with:
+          formulae: ${{ github.event.inputs.formulae || env.FORMULAE }}
+          token: ${{ github.token }}
