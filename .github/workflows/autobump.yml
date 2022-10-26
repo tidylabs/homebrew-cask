@@ -24,9 +24,6 @@ jobs:
     container:
       image: ghcr.io/homebrew/ubuntu22.04:master
     steps:
-      - name: Fix permissions
-        run: sudo chown -R "$(whoami)" "$HOME" "$PWD/.."
-
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -40,7 +37,7 @@ jobs:
       - name: Patch 'brew bump' for --no-fork
         run: |
           git -C "$(brew --repo)" apply \
-          "$(brew --repo jck112/cask)/.github/workflows/bump-no-fork.patch"
+          "$(brew --repo $GITHUB_REPOSITORY)/.github/workflows/bump-no-fork.patch"
 
       - name: Bump formulae
         uses: Homebrew/actions/bump-formulae@master
