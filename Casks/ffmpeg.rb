@@ -4,8 +4,13 @@ cask "ffmpeg" do
 
   url "https://evermeet.cx/ffmpeg/ffmpeg-#{version}.zip"
   name "FFmpeg"
-  desc "Static FFmpeg binaries for macOS 64-bit"
+  desc "Static FFmpeg binaries"
   homepage "https://evermeet.cx/ffmpeg"
+
+  livecheck do
+    url "https://evermeet.cx/ffmpeg/info/ffmpeg/release"
+    regex(/ffmpeg-(\d+(?:\.\d+)+)\.zip/i)
+  end
 
   conflicts_with formula: "ffmpeg"
 
