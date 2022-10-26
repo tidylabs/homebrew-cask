@@ -1,6 +1,6 @@
 cask "ffmpeg" do
-  version "5.0.1"
-  sha256 "6ba850f5d7a8ff1c33c7df99a1ec37687bf33b7b7c8135918ce994fc82f9c46c"
+  version "5.1"
+  sha256 "aa0edf26bd93f4c455039365c3116a60bb9812f6dce91baa404fe19eaa102487"
 
   url "https://evermeet.cx/ffmpeg/ffmpeg-#{version}.zip"
   name "FFmpeg"
