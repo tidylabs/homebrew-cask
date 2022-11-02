@@ -1,46 +1,63 @@
-name: Bump formulae on schedule or request
+name: Bump casks
 
 on:
   workflow_dispatch:
     inputs:
-      formulae:
-        description: Custom list of formulae to livecheck and bump if outdated
+      casks:
+        description: List of casks to livecheck and bump if outdated
+        default: jck112/cask/ffmpeg
         required: false
   schedule:
     # Every day at 3am
     - cron: "0 3 * * *"
 
-env:
-  HOMEBREW_FORCE_HOMEBREW_ON_LINUX: 1
-  FORMULAE: >
-    jck112/cask/ffmpeg
 permissions:
   contents: write
   pull-requests: write
+
+env:
+  HOMEBREW_DEVELOPER: "1"
+  HOMEBREW_FORCE_HOMEBREW_ON_LINUX: "1"
+  HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
+  HOMEBREW_NO_AUTO_UPDATE: "1"
 
 jobs:
   autobump:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/homebrew/ubuntu22.04:master
+      image: ghcr.io/homebrew/ubuntu22.04:latest
     steps:
-      - name: Set up Homebrew
-        id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-        with:
-          test-bot: false
-          token: ${{ github.token }}
+      - name: Fix filesystem permissions
+        run: sudo chown -Rv "$(whoami)" "$HOME" "$GITHUB_WORKSPACE"
 
-      - name: Configure Git user
-        uses: Homebrew/actions/git-user-config@master
-
-      - name: Patch 'brew bump' for --no-fork
+      - name: Configure git
         run: |
-          git -C "$(brew --repo)" apply \
-          "$(brew --repo $GITHUB_REPOSITORY)/.github/workflows/bump-no-fork.patch"
+          git config --global url."https://api:${HOMEBREW_GITHUB_API_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
-      - name: Bump formulae
-        uses: Homebrew/actions/bump-formulae@master
-        with:
-          formulae: ${{ github.event.inputs.formulae || env.FORMULAE }}
-          token: ${{ github.token }}
+      - name: Checkout repository
+        run: |
+          git init -b "$GITHUB_REF_NAME"
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}"
+          git fetch origin "$GITHUB_SHA" '+refs/heads/*:refs/remotes/origin/*'
+          git remote set-head origin --auto
+          git checkout --force -B "$GITHUB_REF_NAME" FETCH_HEAD
+
+      - name: Set environment variables
+        run: |
+          echo "HOMEBREW_REPOSITORY=$(brew --repo)" | sudo tee -a $GITHUB_ENV
+          echo "HOMEBREW_TAP_REPOSITORY=$(brew --repo $GITHUB_REPOSITORY)" | sudo tee -a $GITHUB_ENV
+
+      - name: Setup tap
+        run: |
+          mkdir -vp "${HOMEBREW_TAP_REPOSITORY%/*}"
+          ln -vs "$GITHUB_WORKSPACE" "$HOMEBREW_TAP_REPOSITORY"
+
+      - name: Patch 'brew bump'
+        run: |
+          git -C "$HOMEBREW_REPOSITORY" apply \
+          "$HOMEBREW_TAP_REPOSITORY/.github/workflows/brew-bump.patch"
+
+      - name: Bump casks
+        run: brew bump --open-pr --no-fork --automerge ${{ github.event.inputs.casks }}
