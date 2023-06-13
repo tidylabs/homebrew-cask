@@ -1,8 +1,8 @@
 diff --git a/Library/Homebrew/dev-cmd/bump-cask-pr.rb b/Library/Homebrew/dev-cmd/bump-cask-pr.rb
-index 0cd05870e..08781e157 100644
+index fb9789361..203dbf0ce 100644
 --- a/Library/Homebrew/dev-cmd/bump-cask-pr.rb
 +++ b/Library/Homebrew/dev-cmd/bump-cask-pr.rb
-@@ -38,6 +38,8 @@ module Homebrew
+@@ -36,6 +36,8 @@ module Homebrew
               description: "Print the pull request URL instead of opening in a browser."
        switch "--no-fork",
               description: "Don't try to fork the repository."
@@ -12,10 +12,10 @@ index 0cd05870e..08781e157 100644
               description: "Specify the new <version> for the cask."
        flag   "--message=",
 diff --git a/Library/Homebrew/dev-cmd/bump-formula-pr.rb b/Library/Homebrew/dev-cmd/bump-formula-pr.rb
-index e9f87bc45..864fc5308 100644
+index 1b9c0d0f1..988b3a948 100644
 --- a/Library/Homebrew/dev-cmd/bump-formula-pr.rb
 +++ b/Library/Homebrew/dev-cmd/bump-formula-pr.rb
-@@ -50,6 +50,8 @@ module Homebrew
+@@ -48,6 +48,8 @@ module Homebrew
               description: "Print the pull request URL instead of opening in a browser."
        switch "--no-fork",
               description: "Don't try to fork the repository."
@@ -25,13 +25,13 @@ index e9f87bc45..864fc5308 100644
                    description: "Use the specified <URL> as a mirror URL. If <URL> is a comma-separated list " \
                                 "of URLs, multiple mirrors will be added."
 diff --git a/Library/Homebrew/dev-cmd/bump.rb b/Library/Homebrew/dev-cmd/bump.rb
-index 0bc0bbc96..8bd81c353 100644
+index bf933a687..e80b84dbf 100644
 --- a/Library/Homebrew/dev-cmd/bump.rb
 +++ b/Library/Homebrew/dev-cmd/bump.rb
-@@ -27,6 +27,10 @@ module Homebrew
+@@ -25,6 +25,10 @@ module Homebrew
               description: "Check only casks."
        switch "--open-pr",
-              description: "Open a pull request for the new version if there are none already open."
+              description: "Open a pull request for the new version if none have been opened yet."
 +      switch "--no-fork",
 +             description: "Don't try to fork the repository."
 +      switch "--automerge",
@@ -39,7 +39,7 @@ index 0bc0bbc96..8bd81c353 100644
        flag   "--limit=",
               description: "Limit number of package results returned."
        flag   "--start-with=",
-@@ -106,11 +110,7 @@ module Homebrew
+@@ -104,11 +108,7 @@ module Homebrew
            Repology::HOMEBREW_CASK
          end
  
@@ -52,9 +52,9 @@ index 0bc0bbc96..8bd81c353 100644
  
          retrieve_and_display_info_and_open_pr(
            formula_or_cask,
-@@ -281,7 +281,12 @@ module Homebrew
-     return unless new_version
-     return if pull_requests
+@@ -288,7 +288,12 @@ module Homebrew
+     return if open_pull_requests
+     return if closed_pull_requests
  
 -    system HOMEBREW_BREW_FILE, "bump-#{type}-pr", "--no-browse",
 -           "--message=Created by `brew bump`", "--version=#{new_version}", name
@@ -68,15 +68,15 @@ index 0bc0bbc96..8bd81c353 100644
    end
  end
 diff --git a/Library/Homebrew/utils/github.rb b/Library/Homebrew/utils/github.rb
-index 0d7472784..b3ebf7518 100644
+index 6fcd91181..b0670798f 100644
 --- a/Library/Homebrew/utils/github.rb
 +++ b/Library/Homebrew/utils/github.rb
-@@ -98,9 +98,10 @@ module GitHub
+@@ -87,9 +87,10 @@ module GitHub
      API.open_rest(url)
    end
  
--  def merge_pull_request(repo, number:, sha:, merge_method:, commit_message: nil)
-+  def merge_pull_request(repo, number:, sha: nil, merge_method: "squash", commit_message: nil)
+-  def self.merge_pull_request(repo, number:, sha:, merge_method:, commit_message: nil)
++  def self.merge_pull_request(repo, number:, sha: nil, merge_method: "squash", commit_message: nil)
      url = "#{API_URL}/repos/#{repo}/pulls/#{number}/merge"
 -    data = { sha: sha, merge_method: merge_method }
 +    data = { merge_method: merge_method }
@@ -84,7 +84,7 @@ index 0d7472784..b3ebf7518 100644
      data[:commit_message] = commit_message if commit_message
      API.open_rest(url, data: data, request_method: :PUT, scopes: CREATE_ISSUE_FORK_OR_PR_SCOPES)
    end
-@@ -627,8 +628,15 @@ module GitHub
+@@ -683,8 +684,15 @@ module GitHub
          end
  
          begin

@@ -27,7 +27,7 @@ jobs:
   autobump:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/homebrew/ubuntu22.04:3.6.14
+      image: ghcr.io/homebrew/ubuntu22.04:latest
     steps:
       - name: Fix filesystem permissions
         run: sudo chown -Rv "$(whoami)" "$HOME" "$GITHUB_WORKSPACE"
