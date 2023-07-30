@@ -58,7 +58,7 @@ jobs:
 
       - name: Patch 'brew bump'
         run: |
-          git -C "$HOMEBREW_REPOSITORY" apply \
+          git -C "$HOMEBREW_REPOSITORY" apply --3way \
           "$HOMEBREW_TAP_REPOSITORY/.github/workflows/brew-bump.patch"
 
       - name: Bump casks

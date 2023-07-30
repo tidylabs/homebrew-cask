@@ -1,8 +1,8 @@
 diff --git a/Library/Homebrew/dev-cmd/bump-cask-pr.rb b/Library/Homebrew/dev-cmd/bump-cask-pr.rb
-index fb9789361..203dbf0ce 100644
+index cce78e604..18e2e2b6a 100644
 --- a/Library/Homebrew/dev-cmd/bump-cask-pr.rb
 +++ b/Library/Homebrew/dev-cmd/bump-cask-pr.rb
-@@ -36,6 +36,8 @@ module Homebrew
+@@ -37,6 +37,8 @@ module Homebrew
               description: "Print the pull request URL instead of opening in a browser."
        switch "--no-fork",
               description: "Don't try to fork the repository."
@@ -10,9 +10,9 @@ index fb9789361..203dbf0ce 100644
 +             description: "Automatically merge the newly created pull request."
        flag   "--version=",
               description: "Specify the new <version> for the cask."
-       flag   "--message=",
+       flag   "--version-arm=",
 diff --git a/Library/Homebrew/dev-cmd/bump-formula-pr.rb b/Library/Homebrew/dev-cmd/bump-formula-pr.rb
-index 1b9c0d0f1..988b3a948 100644
+index deb0b7b0f..1d1e63b13 100644
 --- a/Library/Homebrew/dev-cmd/bump-formula-pr.rb
 +++ b/Library/Homebrew/dev-cmd/bump-formula-pr.rb
 @@ -48,6 +48,8 @@ module Homebrew
@@ -25,7 +25,7 @@ index 1b9c0d0f1..988b3a948 100644
                    description: "Use the specified <URL> as a mirror URL. If <URL> is a comma-separated list " \
                                 "of URLs, multiple mirrors will be added."
 diff --git a/Library/Homebrew/dev-cmd/bump.rb b/Library/Homebrew/dev-cmd/bump.rb
-index bf933a687..e80b84dbf 100644
+index 7ff2ee0c2..e864e8d2d 100644
 --- a/Library/Homebrew/dev-cmd/bump.rb
 +++ b/Library/Homebrew/dev-cmd/bump.rb
 @@ -25,6 +25,10 @@ module Homebrew
@@ -68,7 +68,7 @@ index bf933a687..e80b84dbf 100644
    end
  end
 diff --git a/Library/Homebrew/utils/github.rb b/Library/Homebrew/utils/github.rb
-index 6fcd91181..b0670798f 100644
+index b0b77393e..ce3b6f47f 100644
 --- a/Library/Homebrew/utils/github.rb
 +++ b/Library/Homebrew/utils/github.rb
 @@ -87,9 +87,10 @@ module GitHub
