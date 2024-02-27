@@ -1,5 +1,5 @@
 diff --git a/Library/Homebrew/dev-cmd/bump-cask-pr.rb b/Library/Homebrew/dev-cmd/bump-cask-pr.rb
-index cce78e604..18e2e2b6a 100644
+index 3654de10b..c203da45c 100644
 --- a/Library/Homebrew/dev-cmd/bump-cask-pr.rb
 +++ b/Library/Homebrew/dev-cmd/bump-cask-pr.rb
 @@ -37,6 +37,8 @@ module Homebrew
@@ -12,7 +12,7 @@ index cce78e604..18e2e2b6a 100644
               description: "Specify the new <version> for the cask."
        flag   "--version-arm=",
 diff --git a/Library/Homebrew/dev-cmd/bump-formula-pr.rb b/Library/Homebrew/dev-cmd/bump-formula-pr.rb
-index deb0b7b0f..1d1e63b13 100644
+index 634fa7311..2b757647a 100644
 --- a/Library/Homebrew/dev-cmd/bump-formula-pr.rb
 +++ b/Library/Homebrew/dev-cmd/bump-formula-pr.rb
 @@ -48,6 +48,8 @@ module Homebrew
@@ -25,21 +25,19 @@ index deb0b7b0f..1d1e63b13 100644
                    description: "Use the specified <URL> as a mirror URL. If <URL> is a comma-separated list " \
                                 "of URLs, multiple mirrors will be added."
 diff --git a/Library/Homebrew/dev-cmd/bump.rb b/Library/Homebrew/dev-cmd/bump.rb
-index 84b01affc..868a4e3a8 100644
+index a12ca2e0c..bbd5e3798 100644
 --- a/Library/Homebrew/dev-cmd/bump.rb
 +++ b/Library/Homebrew/dev-cmd/bump.rb
-@@ -39,6 +39,10 @@ module Homebrew
-              description: "Check formulae and casks that are currently installed."
+@@ -41,6 +41,8 @@ module Homebrew
+              description: "Don't try to fork the repository."
        switch "--open-pr",
               description: "Open a pull request for the new version if none have been opened yet."
-+      switch "--no-fork",
-+             description: "Don't try to fork the repository."
 +      switch "--automerge",
 +             description: "Automatically merge the newly created pull request."
        flag   "--limit=",
               description: "Limit number of package results returned."
        flag   "--start-with=",
-@@ -136,11 +140,7 @@ module Homebrew
+@@ -137,11 +139,7 @@ module Homebrew
          Repology::HOMEBREW_CASK
        end
  
@@ -52,17 +50,16 @@ index 84b01affc..868a4e3a8 100644
  
        retrieve_and_display_info_and_open_pr(
          formula_or_cask,
-@@ -469,6 +469,8 @@ module Homebrew
-       "--message=Created by `brew bump`",
+@@ -512,6 +510,7 @@ module Homebrew
      ]
-     bump_cask_pr_args << "--force" if args.force?
-+    bump_cask_pr_args << "--no-fork" if args.no_fork?
+ 
+     bump_cask_pr_args << "--no-fork" if args.no_fork?
 +    bump_cask_pr_args << "--automerge" if args.automerge?
  
      system HOMEBREW_BREW_FILE, *bump_cask_pr_args
    end
 diff --git a/Library/Homebrew/utils/github.rb b/Library/Homebrew/utils/github.rb
-index b0b77393e..ce3b6f47f 100644
+index de7de99a7..002d97d9a 100644
 --- a/Library/Homebrew/utils/github.rb
 +++ b/Library/Homebrew/utils/github.rb
 @@ -87,9 +87,10 @@ module GitHub
@@ -78,7 +75,7 @@ index b0b77393e..ce3b6f47f 100644
      data[:commit_message] = commit_message if commit_message
      API.open_rest(url, data: data, request_method: :PUT, scopes: CREATE_ISSUE_FORK_OR_PR_SCOPES)
    end
-@@ -683,8 +684,15 @@ module GitHub
+@@ -689,8 +690,15 @@ module GitHub
          end
  
          begin
