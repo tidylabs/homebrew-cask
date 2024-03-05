@@ -20,7 +20,7 @@ env:
   HOMEBREW_NO_AUTO_UPDATE: "1"
 
 jobs:
-  autobump:
+  bump:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/homebrew/ubuntu22.04:latest
