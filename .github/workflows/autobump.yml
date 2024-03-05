@@ -2,10 +2,6 @@ name: Bump casks
 
 on:
   workflow_dispatch:
-    inputs:
-      casks:
-        description: List of casks to livecheck and bump if outdated
-        required: false
   schedule:
     # Every day at 3am
     - cron: "0 3 * * *"
@@ -28,23 +24,10 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/homebrew/ubuntu22.04:latest
+      options: --pull always --user root
     steps:
-      - name: Fix filesystem permissions
-        run: sudo chown -Rv "$(whoami)" "$HOME" "$GITHUB_WORKSPACE"
-
       - uses: tidylabs/action-git-config-user@v1
-
-      - name: Configure git url
-        run: |
-          git config --global url."https://api:${HOMEBREW_GITHUB_API_TOKEN}@github.com/".insteadOf "https://github.com/"
-
-      - name: Checkout repository
-        run: |
-          git init -b "$GITHUB_REF_NAME"
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}"
-          git fetch origin "$GITHUB_SHA" '+refs/heads/*:refs/remotes/origin/*'
-          git remote set-head origin --auto
-          git checkout --force -B "$GITHUB_REF_NAME" FETCH_HEAD
+      - uses: actions/checkout@v4
 
       - name: Set environment variables
         run: |
@@ -56,10 +39,5 @@ jobs:
           mkdir -vp "${HOMEBREW_TAP_REPOSITORY%/*}"
           ln -vs "$GITHUB_WORKSPACE" "$HOMEBREW_TAP_REPOSITORY"
 
-      - name: Patch 'brew bump'
-        run: |
-          git -C "$HOMEBREW_REPOSITORY" apply --3way \
-          "$HOMEBREW_TAP_REPOSITORY/.github/workflows/brew-bump.patch"
-
       - name: Bump casks
-        run: brew bump --open-pr --no-fork --automerge ${{ github.event.inputs.casks || env.CASKS }}
+        run: brew bump --open-pr --no-fork ${{ github.event.inputs.casks || env.CASKS }}
