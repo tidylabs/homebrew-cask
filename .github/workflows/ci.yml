@@ -2,7 +2,13 @@ name: CI
 
 on:
   push:
+    branches:
+      - master
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   HOMEBREW_DEVELOPER: "1"
@@ -17,7 +23,7 @@ jobs:
       image: ghcr.io/homebrew/ubuntu22.04:latest
       options: --pull always --user root
     steps:
-      - uses: tidylabs/action-git-config-user@v1
+      - uses: tidylabs/action-git-config-user@v2
       - uses: actions/checkout@v4
 
       - name: Set environment variables
@@ -31,4 +37,4 @@ jobs:
           ln -vs "$GITHUB_WORKSPACE" "$HOMEBREW_TAP_REPOSITORY"
 
       - name: Style check
-        run: brew style $GITHUB_REPOSITORY
+        run: brew style "$GITHUB_REPOSITORY"
