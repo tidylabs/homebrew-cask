@@ -11,9 +11,6 @@ permissions:
   pull-requests: write
 
 env:
-  CASKS: >
-    jck112/cask/balenaetcher
-    jck112/cask/ffmpeg
   HOMEBREW_DEVELOPER: "1"
   HOMEBREW_FORCE_HOMEBREW_ON_LINUX: "1"
   HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
@@ -26,7 +23,7 @@ jobs:
       image: ghcr.io/homebrew/ubuntu22.04:latest
       options: --pull always --user root
     steps:
-      - uses: tidylabs/action-git-config-user@v1
+      - uses: tidylabs/action-git-config-user@v2
       - uses: actions/checkout@v4
 
       - name: Set environment variables
@@ -40,4 +37,4 @@ jobs:
           ln -vs "$GITHUB_WORKSPACE" "$HOMEBREW_TAP_REPOSITORY"
 
       - name: Bump casks
-        run: brew bump --open-pr --no-fork ${{ github.event.inputs.casks || env.CASKS }}
+        run: brew bump --open-pr --no-fork --tap "$GITHUB_REPOSITORY"
