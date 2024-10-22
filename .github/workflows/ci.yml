@@ -18,18 +18,23 @@ env:
 
 jobs:
   style:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/homebrew/ubuntu22.04:latest
+      image: ghcr.io/homebrew/ubuntu24.04:latest
       options: --pull always --user root
     steps:
       - uses: tidylabs/action-git-config-user@v2
+
       - uses: actions/checkout@v4
 
       - name: Set environment variables
         run: |
-          echo "HOMEBREW_REPOSITORY=$(brew --repo)" | sudo tee -a $GITHUB_ENV
-          echo "HOMEBREW_TAP_REPOSITORY=$(brew --repo $GITHUB_REPOSITORY)" | sudo tee -a $GITHUB_ENV
+          echo "HOMEBREW_REPOSITORY=$(brew --repo)" | sudo tee -a "$GITHUB_ENV"
+          echo "HOMEBREW_TAP_REPOSITORY=$(brew --repo "$GITHUB_REPOSITORY")" | sudo tee -a "$GITHUB_ENV"
+
+      - name: Fix permissions
+        run: |
+          chown -R "$(whoami)" "$HOMEBREW_REPOSITORY"
 
       - name: Setup tap
         run: |
