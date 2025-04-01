@@ -1,12 +1,12 @@
-# jck112 Cask
+# Tidy Labs Cask
 
 Casks for binaries not found in [homebrew-cask](https://github.com/Homebrew/homebrew-cask).
 
-## How do I install these formulae?
+## How do I install these casks?
 
-`brew install jck112/cask/<formula>`
+`brew install tidylabs/cask/<cask>`
 
-Or `brew tap jck112/cask` and then `brew install <formula>`.
+Or `brew tap tidylabs/cask` and then `brew install <cask>`.
 
 ## Documentation
 

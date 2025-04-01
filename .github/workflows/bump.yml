@@ -6,48 +6,33 @@ on:
     # Every day at 3am
     - cron: "0 3 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
 
 env:
-  HOMEBREW_DEVELOPER: "1"
-  HOMEBREW_FORCE_HOMEBREW_ON_LINUX: "1"
   HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
-  HOMEBREW_NO_AUTO_UPDATE: "1"
 
 jobs:
   bump:
+    name: Bump casks
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/homebrew/ubuntu24.04:latest
-      options: --pull always --user root
     steps:
-      - uses: tidylabs/action-git-config-user@v2
+      - name: Configure git user
+        uses: tidylabs/action-git-config-user@v2
 
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set environment variables
-        run: |
-          echo "HOMEBREW_REPOSITORY=$(brew --repo)" | sudo tee -a "$GITHUB_ENV"
-          echo "HOMEBREW_TAP_REPOSITORY=$(brew --repo "$GITHUB_REPOSITORY")" | sudo tee -a "$GITHUB_ENV"
+        run: tee -a "$GITHUB_ENV" < .devcontainer/homebrew.env
 
-      - name: Fix permissions
-        run: |
-          chown -R "$(whoami)" "$HOMEBREW_REPOSITORY"
-
-      - name: Add safe directory for git
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Set default remote branch
-        run: |
-          git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/master
-
-      - name: Setup tap
-        run: |
-          mkdir -vp "${HOMEBREW_TAP_REPOSITORY%/*}"
-          ln -vs "$GITHUB_WORKSPACE" "$HOMEBREW_TAP_REPOSITORY"
+      - name: Setup Homebrew
+        run: .devcontainer/setup.sh
 
       - name: Bump casks
         run: brew bump --open-pr --no-fork --tap "$GITHUB_REPOSITORY"
