@@ -18,9 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set environment variables
-        run: tee -a "$GITHUB_ENV" < .devcontainer/homebrew.env
-
       - name: Setup Homebrew
         run: .devcontainer/setup.sh
 

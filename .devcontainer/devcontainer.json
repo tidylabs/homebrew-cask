@@ -1,6 +1,5 @@
 {
 	"name": "Homebrew",
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
-	"onCreateCommand": ".devcontainer/setup.sh",
-	"runArgs": ["--env-file", ".devcontainer/homebrew.env"]
+	"onCreateCommand": ".devcontainer/setup.sh"
 }
