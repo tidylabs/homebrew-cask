@@ -12,7 +12,5 @@ cask "ffmpeg" do
     regex(/ffmpeg-(\d+(?:\.\d+)+)\.zip/i)
   end
 
-  conflicts_with formula: "ffmpeg"
-
   binary "ffmpeg"
 end
