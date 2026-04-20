@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Configure git user
-        uses: tidylabs/action-git-config-user@v2
+        uses: tidylabs/action-git-config-user@v3
 
       - name: Checkout code
         uses: actions/checkout@v6
