@@ -71,3 +71,6 @@ tap_dir="$(brew --repo "$GITHUB_REPOSITORY")"
 [ ! -d "$tap_dir" ] \
 	&& mkdir -vp "${tap_dir%/*}" \
 	&& ln -vs "$GITHUB_WORKSPACE" "$tap_dir"
+
+# Trust tap
+brew trust "$GITHUB_REPOSITORY"
